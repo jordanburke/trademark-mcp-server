@@ -1,0 +1,1 @@
+# trademark-mcp-server
