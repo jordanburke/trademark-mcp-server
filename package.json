@@ -1,0 +1,74 @@
+{
+  "name": "trademark-mcp-server",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol (MCP) server that provides tools for searching and retrieving USPTO trademark information using the TSDR API.",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./server": "./dist/server.js"
+  },
+  "bin": {
+    "trademark-mcp-server": "dist/bin.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "build:prod": "SKIP_DTS=true tsup",
+    "prepublishOnly": "pnpm run lint && pnpm run format:check && pnpm run test && pnpm run build",
+    "inspect": "pnpm build && npx @modelcontextprotocol/inspector dist/index.js",
+    "dev": "pnpm build && pnpm inspect",
+    "start": "pnpm build && npx trademark-mcp-server",
+    "serve": "pnpm build && node dist/server.js",
+    "serve:dev": "tsx watch src/server.ts",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json}\"",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [
+    "mcp",
+    "trademark",
+    "uspto",
+    "tsdr",
+    "api",
+    "model-context-protocol"
+  ],
+  "author": "Jordan Burke <jordan.burke@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordanburke/trademark-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jordanburke/trademark-mcp-server/issues"
+  },
+  "homepage": "https://github.com/jordanburke/trademark-mcp-server#readme",
+  "dependencies": {
+    "fastmcp": "^3.13.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/node": "^22.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.32.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.3",
+    "prettier": "^3.6.2",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@10.14.0-0+sha512.2cd47a0cbf5f1d1de7693a88307a0ede5be94e0d3b34853d800ee775efbea0650cb562b77605ec80bc8d925f5cd27c4dfe8bb04d3a0b76090784c664450d32d6"
+}
