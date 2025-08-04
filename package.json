@@ -2,6 +2,7 @@
   "name": "trademark-mcp-server",
   "version": "1.0.0",
   "description": "A Model Context Protocol (MCP) server that provides tools for searching and retrieving USPTO trademark information using the TSDR API.",
+  "type": "module", 
   "main": "dist/index.js",
   "exports": {
     ".": "./dist/index.js",

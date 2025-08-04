@@ -69,15 +69,89 @@ A convenience shell script is provided:
 # Set your API key first
 export USPTO_API_KEY=your_api_key_here
 
-# Then run the server
+# Start HTTP server (default port 3000)
 pnpm serve
 # or directly
 node dist/server.js
+
+# Or specify a custom port
+PORT=8080 pnpm serve
 ```
 
-The HTTP server will run on port 8080 by default (configurable via `PORT` environment variable):
-- Health check: `http://localhost:8080/health`
-- MCP endpoint: `http://localhost:8080/mcp`
+The HTTP server provides:
+- Health check: `http://localhost:3000/health`
+- Server info: `http://localhost:3000/`
+- MCP endpoint: `http://localhost:3001/mcp` (FastMCP on port+1)
+
+## 🐳 Docker Support
+
+### Quick Start with Docker
+
+Run the trademark server as a Docker container:
+
+```bash
+# Pull and run from GitHub Container Registry
+docker run -d \
+  --name trademark-mcp-server \
+  -p 3000:3000 \
+  -e USPTO_API_KEY=your_api_key_here \
+  ghcr.io/jordanburke/trademark-mcp-server:latest
+```
+
+### Docker Compose
+
+Create a `docker-compose.yml` file:
+
+```yaml
+version: '3.8'
+services:
+  trademark-mcp-server:
+    image: ghcr.io/jordanburke/trademark-mcp-server:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - USPTO_API_KEY=your_api_key_here
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+Then run:
+
+```bash
+docker-compose up -d
+```
+
+### Building Docker Image Locally
+
+```bash
+# Build the image
+docker build -t trademark-mcp-server .
+
+# Run the container
+docker run -d \
+  --name trademark-mcp-server \
+  -p 3000:3000 \
+  -e USPTO_API_KEY=your_api_key_here \
+  trademark-mcp-server
+
+# View logs
+docker logs trademark-mcp-server
+
+# Health check
+curl http://localhost:3000/health
+```
+
+### Docker Image Details
+
+- **Base Image**: `node:18-alpine` (lightweight Linux distribution)
+- **Multi-architecture**: Supports both `linux/amd64` and `linux/arm64`
+- **Security**: Runs as non-root user (`trademark:nodejs`)
+- **Health Checks**: Built-in health monitoring on `/health`
+- **Production Ready**: Optimized for production deployments
 
 ### Development
 

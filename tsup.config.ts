@@ -6,7 +6,7 @@ export default defineConfig({
     bin: 'src/bin.ts',
     server: 'src/server.ts'
   },
-  format: ['cjs'],
+  format: ['esm'],
   dts: process.env.SKIP_DTS !== 'true',
   clean: true,
   shims: true,

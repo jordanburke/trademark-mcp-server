@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+        
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Run linting
+      run: pnpm run lint
+      
+    - name: Check formatting
+      run: pnpm run format:check
+      
+    - name: Run tests
+      run: pnpm run test
+      
+    - name: Build project
+      run: pnpm run build
+      
+    - name: Test build artifacts
+      run: |
+        test -f dist/index.js
+        test -f dist/bin.js  
+        test -f dist/server.js
+        
+    - name: Upload test coverage
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '20.x'
+      with:
+        file: ./coverage/lcov.info
+        fail_ci_if_error: false
