@@ -19,7 +19,7 @@
     "build": "tsup",
     "build:prod": "SKIP_DTS=true tsup",
     "prepublishOnly": "pnpm run lint && pnpm run format:check && pnpm run test && pnpm run build",
-    "inspect": "pnpm build && npx @modelcontextprotocol/inspector dist/index.js",
+    "inspect": "pnpm build && npx @modelcontextprotocol/inspector dist/bin.js",
     "dev": "pnpm build && pnpm inspect",
     "start": "pnpm build && npx trademark-mcp-server",
     "serve": "pnpm build && node dist/server.js",

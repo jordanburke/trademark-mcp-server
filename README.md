@@ -19,9 +19,35 @@ pnpm install
 pnpm build
 ```
 
+## ⚠️ API Key Required
+
+**Important**: The USPTO TSDR API requires an API key since October 2020. You must:
+
+1. **Register** at [USPTO Developer Portal](https://developer.uspto.gov/)
+2. **Get your API key** from your account dashboard  
+3. **Set environment variable**: `USPTO_API_KEY=your_api_key_here`
+
+Without an API key, all requests will return 401 Unauthorized errors.
+
 ## Usage
 
+### Using npx (Recommended)
+
+You can run the server directly using npx without installing:
+
+```bash
+# Set your API key first
+export USPTO_API_KEY=your_api_key_here
+
+# Then run the server
+npx trademark-mcp-server
+```
+
+This will start the MCP server in stdio mode, ready to receive MCP protocol messages.
+
 ### As an MCP Server (stdio)
+
+If you have the package installed locally:
 
 ```bash
 pnpm start
@@ -29,9 +55,21 @@ pnpm start
 node dist/bin.js
 ```
 
+### Using the Shell Script
+
+A convenience shell script is provided:
+
+```bash
+./start-mcp-server.sh
+```
+
 ### As an HTTP Server
 
 ```bash
+# Set your API key first
+export USPTO_API_KEY=your_api_key_here
+
+# Then run the server
 pnpm serve
 # or directly
 node dist/server.js
@@ -44,11 +82,16 @@ The HTTP server will run on port 8080 by default (configurable via `PORT` enviro
 ### Development
 
 ```bash
+# Set your API key first
+export USPTO_API_KEY=your_api_key_here
+
 # Run in development mode with file watching
 pnpm serve:dev
 
-# Run with MCP Inspector for debugging
-pnpm dev
+# Run with MCP Inspector for debugging and testing
+pnpm inspect
+# or use the convenience script
+./inspect-server.sh
 
 # Run tests
 pnpm test
@@ -57,6 +100,25 @@ pnpm test
 pnpm lint
 pnpm format
 ```
+
+### Testing with MCP Inspector
+
+The MCP Inspector provides a web-based interface for testing MCP servers:
+
+```bash
+# Start the inspector (opens browser at http://localhost:5173)
+pnpm inspect
+
+# Or use the standalone script
+./inspect-server.sh
+```
+
+The inspector allows you to:
+- **Test all tools** interactively through a web UI
+- **View server capabilities** and available tools
+- **Send requests** and see responses in real-time
+- **Debug issues** with detailed logging
+- **Validate** MCP protocol compliance
 
 ## API Endpoints Used
 
@@ -68,12 +130,24 @@ This server uses the USPTO TSDR (Trademark Status & Document Retrieval) API:
 - **Trademark Images**: `/rawImage/[SERIAL]`
 - **Document Bundles**: `/casedocs/bundle.pdf?sn=[SERIAL]`
 
+### Getting an API Key
+
+1. Visit [USPTO Developer Portal](https://developer.uspto.gov/)
+2. Create an account or log in
+3. Navigate to your account dashboard
+4. Generate a new API key for TSDR access
+5. Copy your API key for use with this server
+
+For questions about API keys, contact: `APIhelp@uspto.gov`
+
 ### Rate Limits
 
 - General API calls: 60 requests per minute per API key
 - PDF/ZIP downloads: 4 requests per minute per API key
 
 ## Example Usage
+
+You can test these examples using the MCP Inspector (`pnpm inspect`) or by calling the tools directly.
 
 ### Search by Serial Number
 
@@ -110,7 +184,16 @@ This server uses the USPTO TSDR (Trademark Status & Document Retrieval) API:
 }
 ```
 
+### Test with Real Data
+
+Try these working examples in the MCP Inspector:
+- **Apple trademark**: Serial number `78462704`
+- **Nike trademark**: Serial number `72016902`
+- **Microsoft trademark**: Serial number `78213220`
+
 ## Configuration for Claude Desktop
+
+### Using npx (Recommended)
 
 Add this to your `claude_desktop_config.json`:
 
@@ -118,8 +201,46 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "trademark-mcp-server": {
+      "command": "npx",
+      "args": ["trademark-mcp-server"],
+      "env": {
+        "USPTO_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Using Local Installation
+
+If you have the package installed locally:
+
+```json
+{
+  "mcpServers": {
+    "trademark-mcp-server": {
       "command": "node",
-      "args": ["/path/to/trademark-mcp-server/dist/bin.js"]
+      "args": ["/path/to/trademark-mcp-server/dist/bin.js"],
+      "env": {
+        "USPTO_API_KEY": "your_api_key_here"
+      }
+    }
+  }
+}
+```
+
+### Using Shell Script
+
+You can also use the provided shell script:
+
+```json
+{
+  "mcpServers": {
+    "trademark-mcp-server": {
+      "command": "/path/to/trademark-mcp-server/start-mcp-server.sh",
+      "env": {
+        "USPTO_API_KEY": "your_api_key_here"
+      }
     }
   }
 }

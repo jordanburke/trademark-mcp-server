@@ -8,18 +8,46 @@ const server = new FastMCP({
 This MCP server provides tools for searching and retrieving USPTO trademark information using the TSDR API.
 
 Available tools:
-- trademark_search: Search for trademarks by serial number, registration number, or owner name
+- trademark_search_by_serial: Search for trademarks by 8-digit serial number
+- trademark_search_by_registration: Search for trademarks by 7-8 digit registration number  
 - trademark_status: Get detailed status information for a specific trademark
 - trademark_image: Retrieve trademark image URLs
 - trademark_documents: Get document bundle URLs for a trademark
 
 The server uses the USPTO TSDR (Trademark Status & Document Retrieval) API to provide real-time trademark data.
 Rate limits: 60 requests per minute for general API calls, 4 requests per minute for PDF/ZIP downloads.
+
+IMPORTANT: An API key is required to access the USPTO TSDR API (since October 2020).
+Set the USPTO_API_KEY environment variable with your API key from https://developer.uspto.gov/
 `,
 })
 
 // Base TSDR API URL
 const TSDR_BASE_URL = "https://tsdrapi.uspto.gov/ts/cd"
+
+// API Key for USPTO TSDR API (required since October 2020)
+const API_KEY = process.env.USPTO_API_KEY
+
+// Helper function to get headers with API key
+function getHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "User-Agent": "trademark-mcp-server/1.0.0",
+  }
+  
+  if (API_KEY) {
+    headers["USPTO-API-KEY"] = API_KEY
+  }
+  
+  return headers
+}
+
+// Helper function to check if API key is configured
+function checkApiKey(): string | null {
+  if (!API_KEY) {
+    return "❌ USPTO API key not configured. Please set the USPTO_API_KEY environment variable with your API key from https://account.uspto.gov/api-manager/"
+  }
+  return null
+}
 
 // Trademark search by serial number
 server.addTool({
@@ -35,22 +63,44 @@ server.addTool({
     openWorldHint: true,
   },
   execute: async (args) => {
+    const apiKeyError = checkApiKey()
+    if (apiKeyError) {
+      return apiKeyError
+    }
+    
     try {
-      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/info.json`
+      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/info.xml`
 
       const response = await fetch(url, {
-        headers: {
-          "User-Agent": "trademark-mcp-server/1.0.0",
-        },
+        headers: getHeaders(),
       })
 
       if (!response.ok) {
-        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}`)
+        const errorText = await response.text()
+        if (errorText.includes("need to register for an API key")) {
+          throw new Error(`🔑 USPTO API Authentication Issue
+
+The USPTO TSDR API is rejecting our API key. This could be due to:
+
+1. **API Key Activation Delay**: New keys may need 24-48 hours to activate
+2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
+3. **Authentication Method**: The API might require a different authentication format
+
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+
+**Next Steps**:
+• Contact USPTO support: APIhelp@uspto.gov 
+• Include your API key and this error message
+• Ask specifically about individual record endpoint access
+
+**Alternative**: Try bulk data download endpoints if available.`)
+        }
+        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}. Error: ${errorText}`)
       }
 
-      const data = (await response.json()) as Record<string, unknown>
+      const xmlData = await response.text()
 
-      return JSON.stringify(data, null, 2)
+      return xmlData
     } catch (error) {
       return `Error fetching trademark data: ${error instanceof Error ? error.message : String(error)}`
     }
@@ -70,17 +120,39 @@ server.addTool({
     openWorldHint: true,
   },
   execute: async (args) => {
+    const apiKeyError = checkApiKey()
+    if (apiKeyError) {
+      return apiKeyError
+    }
+    
     try {
-      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/content.html`
+      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/content`
 
       const response = await fetch(url, {
-        headers: {
-          "User-Agent": "trademark-mcp-server/1.0.0",
-        },
+        headers: getHeaders(),
       })
 
       if (!response.ok) {
-        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}`)
+        const errorText = await response.text()
+        if (errorText.includes("need to register for an API key")) {
+          throw new Error(`🔑 USPTO API Authentication Issue
+
+The USPTO TSDR API is rejecting our API key. This could be due to:
+
+1. **API Key Activation Delay**: New keys may need 24-48 hours to activate
+2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
+3. **Authentication Method**: The API might require a different authentication format
+
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+
+**Next Steps**:
+• Contact USPTO support: APIhelp@uspto.gov 
+• Include your API key and this error message
+• Ask specifically about individual record endpoint access
+
+**Alternative**: Try bulk data download endpoints if available.`)
+        }
+        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}. Error: ${errorText}`)
       }
 
       const htmlContent = await response.text()
@@ -109,15 +181,18 @@ server.addTool({
     openWorldHint: true,
   },
   execute: async (args) => {
+    const apiKeyError = checkApiKey()
+    if (apiKeyError) {
+      return apiKeyError
+    }
+    
     try {
       const imageUrl = `${TSDR_BASE_URL}/rawImage/${args.serialNumber}`
 
       // Test if the image exists by making a HEAD request
       const response = await fetch(imageUrl, {
         method: "HEAD",
-        headers: {
-          "User-Agent": "trademark-mcp-server/1.0.0",
-        },
+        headers: getHeaders(),
       })
 
       if (!response.ok) {
@@ -144,6 +219,11 @@ server.addTool({
     openWorldHint: true,
   },
   execute: async (args) => {
+    const apiKeyError = checkApiKey()
+    if (apiKeyError) {
+      return apiKeyError
+    }
+    
     try {
       const documentsUrl = `${TSDR_BASE_URL}/casedocs/bundle.pdf?sn=${args.serialNumber}`
 
@@ -167,22 +247,44 @@ server.addTool({
     openWorldHint: true,
   },
   execute: async (args) => {
+    const apiKeyError = checkApiKey()
+    if (apiKeyError) {
+      return apiKeyError
+    }
+    
     try {
-      const url = `${TSDR_BASE_URL}/casestatus/rn${args.registrationNumber}/info.json`
+      const url = `${TSDR_BASE_URL}/casestatus/rn${args.registrationNumber}/info.xml`
 
       const response = await fetch(url, {
-        headers: {
-          "User-Agent": "trademark-mcp-server/1.0.0",
-        },
+        headers: getHeaders(),
       })
 
       if (!response.ok) {
-        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}`)
+        const errorText = await response.text()
+        if (errorText.includes("need to register for an API key")) {
+          throw new Error(`🔑 USPTO API Authentication Issue
+
+The USPTO TSDR API is rejecting our API key. This could be due to:
+
+1. **API Key Activation Delay**: New keys may need 24-48 hours to activate
+2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
+3. **Authentication Method**: The API might require a different authentication format
+
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+
+**Next Steps**:
+• Contact USPTO support: APIhelp@uspto.gov 
+• Include your API key and this error message
+• Ask specifically about individual record endpoint access
+
+**Alternative**: Try bulk data download endpoints if available.`)
+        }
+        throw new Error(`USPTO API returned ${response.status}: ${response.statusText}. Error: ${errorText}`)
       }
 
-      const data = (await response.json()) as Record<string, unknown>
+      const xmlData = await response.text()
 
-      return JSON.stringify(data, null, 2)
+      return xmlData
     } catch (error) {
       return `Error fetching trademark data by registration number: ${error instanceof Error ? error.message : String(error)}`
     }
