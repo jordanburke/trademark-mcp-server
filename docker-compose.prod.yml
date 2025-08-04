@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  trademark-mcp-server:
+    image: ghcr.io/jordanburke/trademark-mcp-server:latest
+    container_name: trademark-mcp-server-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - USPTO_API_KEY=${USPTO_API_KEY}
+      - NODE_ENV=production
+      - PORT=3000
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.docker.compose.project=trademark-mcp-prod"
+      - "service=trademark-mcp-server"
+      - "environment=production"
+    networks:
+      - trademark-prod-network
+
+  # Optional: Add a reverse proxy (nginx) for production
+  nginx:
+    image: nginx:alpine
+    container_name: trademark-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - trademark-mcp-server
+    restart: always
+    networks:
+      - trademark-prod-network
+
+networks:
+  trademark-prod-network:
+    driver: bridge
+    name: trademark-mcp-prod-network

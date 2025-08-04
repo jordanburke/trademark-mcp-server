@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  trademark-mcp-server:
+    image: ghcr.io/jordanburke/trademark-mcp-server:latest
+    container_name: trademark-mcp-server
+    ports:
+      - "3000:3000"
+    environment:
+      - USPTO_API_KEY=${USPTO_API_KEY}
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.docker.compose.project=trademark-mcp"
+      - "service=trademark-mcp-server"
+    networks:
+      - trademark-network
+
+networks:
+  trademark-network:
+    driver: bridge
+    name: trademark-mcp-network
