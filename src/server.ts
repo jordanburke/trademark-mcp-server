@@ -18,26 +18,30 @@ const httpServer = createServer((req, res) => {
 
   if (req.url === "/health") {
     res.writeHead(200, { "Content-Type": "application/json" })
-    res.end(JSON.stringify({
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      version: "1.0.0",
-      service: "trademark-mcp-server"
-    }))
+    res.end(
+      JSON.stringify({
+        status: "healthy",
+        timestamp: new Date().toISOString(),
+        version: "1.0.0",
+        service: "trademark-mcp-server",
+      }),
+    )
     return
   }
 
   if (req.url === "/") {
     res.writeHead(200, { "Content-Type": "application/json" })
-    res.end(JSON.stringify({
-      name: "trademark-mcp-server",
-      version: "1.0.0",
-      description: "USPTO Trademark MCP Server",
-      endpoints: {
-        health: "/health",
-        mcp: "/mcp"
-      }
-    }))
+    res.end(
+      JSON.stringify({
+        name: "trademark-mcp-server",
+        version: "1.0.0",
+        description: "USPTO Trademark MCP Server",
+        endpoints: {
+          health: "/health",
+          mcp: "/mcp",
+        },
+      }),
+    )
     return
   }
 
