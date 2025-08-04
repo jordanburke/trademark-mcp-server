@@ -1,8 +1,8 @@
 // Test setup file for Vitest
-import { vi } from 'vitest'
+import { vi } from "vitest"
 
 // Mock File global for Node.js compatibility
-if (typeof globalThis.File === 'undefined') {
+if (typeof globalThis.File === "undefined") {
   globalThis.File = class File extends Blob {
     name: string
     lastModified: number
@@ -16,7 +16,7 @@ if (typeof globalThis.File === 'undefined') {
 }
 
 // Mock FormData if needed
-if (typeof globalThis.FormData === 'undefined') {
+if (typeof globalThis.FormData === "undefined") {
   globalThis.FormData = class FormData {
     private data = new Map<string, any>()
 
@@ -43,12 +43,12 @@ if (typeof globalThis.FormData === 'undefined') {
 }
 
 // Mock fetch if not available (though it should be in Node 18+)
-if (typeof globalThis.fetch === 'undefined') {
+if (typeof globalThis.fetch === "undefined") {
   globalThis.fetch = vi.fn()
 }
 
 // Ensure other web APIs are available
-if (typeof globalThis.Headers === 'undefined') {
+if (typeof globalThis.Headers === "undefined") {
   globalThis.Headers = class Headers {
     private headers = new Map<string, string>()
 
@@ -90,7 +90,7 @@ if (typeof globalThis.Headers === 'undefined') {
   } as any
 }
 
-if (typeof globalThis.Request === 'undefined') {
+if (typeof globalThis.Request === "undefined") {
   globalThis.Request = class Request {
     url: string
     method: string
@@ -98,13 +98,13 @@ if (typeof globalThis.Request === 'undefined') {
     body: any
 
     constructor(input: string | Request, init?: RequestInit) {
-      if (typeof input === 'string') {
+      if (typeof input === "string") {
         this.url = input
       } else {
         this.url = input.url
       }
-      
-      this.method = init?.method || 'GET'
+
+      this.method = init?.method || "GET"
       this.headers = new Headers(init?.headers)
       this.body = init?.body
     }
@@ -113,13 +113,13 @@ if (typeof globalThis.Request === 'undefined') {
       return new Request(this.url, {
         method: this.method,
         headers: this.headers,
-        body: this.body
+        body: this.body,
       })
     }
   } as any
 }
 
-if (typeof globalThis.Response === 'undefined') {
+if (typeof globalThis.Response === "undefined") {
   globalThis.Response = class Response {
     status: number
     statusText: string
@@ -130,24 +130,24 @@ if (typeof globalThis.Response === 'undefined') {
     constructor(body?: any, init?: ResponseInit) {
       this.body = body
       this.status = init?.status || 200
-      this.statusText = init?.statusText || 'OK'
+      this.statusText = init?.statusText || "OK"
       this.headers = new Headers(init?.headers)
       this.ok = this.status >= 200 && this.status < 300
     }
 
     async json() {
-      return typeof this.body === 'string' ? JSON.parse(this.body) : this.body
+      return typeof this.body === "string" ? JSON.parse(this.body) : this.body
     }
 
     async text() {
-      return typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
+      return typeof this.body === "string" ? this.body : JSON.stringify(this.body)
     }
 
     clone() {
       return new Response(this.body, {
         status: this.status,
         statusText: this.statusText,
-        headers: this.headers
+        headers: this.headers,
       })
     }
   } as any
