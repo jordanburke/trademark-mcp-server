@@ -69,7 +69,9 @@ server.addTool({
     }
     
     try {
-      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/info.xml`
+      // Use JSON or XML endpoint based on format parameter
+      const fileExtension = args.format === "json" ? "json" : "xml"
+      const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/info.${fileExtension}`
 
       const response = await fetch(url, {
         headers: getHeaders(),
@@ -98,9 +100,14 @@ The USPTO TSDR API is rejecting our API key. This could be due to:
         throw new Error(`USPTO API returned ${response.status}: ${response.statusText}. Error: ${errorText}`)
       }
 
-      const xmlData = await response.text()
-
-      return xmlData
+      // Parse response based on format
+      if (args.format === "json") {
+        const jsonData = await response.json()
+        return JSON.stringify(jsonData, null, 2)
+      } else {
+        const xmlData = await response.text()
+        return xmlData
+      }
     } catch (error) {
       return `Error fetching trademark data: ${error instanceof Error ? error.message : String(error)}`
     }
@@ -240,6 +247,7 @@ server.addTool({
   description: "Search for trademark information using a registration number",
   parameters: z.object({
     registrationNumber: z.string().min(7).max(8).describe("7-8 digit trademark registration number"),
+    format: z.enum(["json", "xml"]).default("json").describe("Response format"),
   }),
   annotations: {
     title: "Trademark Search by Registration Number",
@@ -253,7 +261,9 @@ server.addTool({
     }
     
     try {
-      const url = `${TSDR_BASE_URL}/casestatus/rn${args.registrationNumber}/info.xml`
+      // Use JSON or XML endpoint based on format parameter
+      const fileExtension = args.format === "json" ? "json" : "xml"
+      const url = `${TSDR_BASE_URL}/casestatus/rn${args.registrationNumber}/info.${fileExtension}`
 
       const response = await fetch(url, {
         headers: getHeaders(),
@@ -282,9 +292,14 @@ The USPTO TSDR API is rejecting our API key. This could be due to:
         throw new Error(`USPTO API returned ${response.status}: ${response.statusText}. Error: ${errorText}`)
       }
 
-      const xmlData = await response.text()
-
-      return xmlData
+      // Parse response based on format
+      if (args.format === "json") {
+        const jsonData = await response.json()
+        return JSON.stringify(jsonData, null, 2)
+      } else {
+        const xmlData = await response.text()
+        return xmlData
+      }
     } catch (error) {
       return `Error fetching trademark data by registration number: ${error instanceof Error ? error.message : String(error)}`
     }
