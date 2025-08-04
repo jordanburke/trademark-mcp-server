@@ -33,11 +33,11 @@ function getHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     "User-Agent": "trademark-mcp-server/1.0.0",
   }
-  
+
   if (API_KEY) {
     headers["USPTO-API-KEY"] = API_KEY
   }
-  
+
   return headers
 }
 
@@ -67,7 +67,7 @@ server.addTool({
     if (apiKeyError) {
       return apiKeyError
     }
-    
+
     try {
       // Use JSON or XML endpoint based on format parameter
       const fileExtension = args.format === "json" ? "json" : "xml"
@@ -88,7 +88,7 @@ The USPTO TSDR API is rejecting our API key. This could be due to:
 2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
 3. **Authentication Method**: The API might require a different authentication format
 
-**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : "Not set"}
 
 **Next Steps**:
 • Contact USPTO support: APIhelp@uspto.gov 
@@ -131,7 +131,7 @@ server.addTool({
     if (apiKeyError) {
       return apiKeyError
     }
-    
+
     try {
       const url = `${TSDR_BASE_URL}/casestatus/sn${args.serialNumber}/content`
 
@@ -150,7 +150,7 @@ The USPTO TSDR API is rejecting our API key. This could be due to:
 2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
 3. **Authentication Method**: The API might require a different authentication format
 
-**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : "Not set"}
 
 **Next Steps**:
 • Contact USPTO support: APIhelp@uspto.gov 
@@ -192,7 +192,7 @@ server.addTool({
     if (apiKeyError) {
       return apiKeyError
     }
-    
+
     try {
       const imageUrl = `${TSDR_BASE_URL}/rawImage/${args.serialNumber}`
 
@@ -230,7 +230,7 @@ server.addTool({
     if (apiKeyError) {
       return apiKeyError
     }
-    
+
     try {
       const documentsUrl = `${TSDR_BASE_URL}/casedocs/bundle.pdf?sn=${args.serialNumber}`
 
@@ -259,7 +259,7 @@ server.addTool({
     if (apiKeyError) {
       return apiKeyError
     }
-    
+
     try {
       // Use JSON or XML endpoint based on format parameter
       const fileExtension = args.format === "json" ? "json" : "xml"
@@ -280,7 +280,7 @@ The USPTO TSDR API is rejecting our API key. This could be due to:
 2. **Endpoint Restrictions**: Individual record endpoints may be temporarily disabled
 3. **Authentication Method**: The API might require a different authentication format
 
-**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : 'Not set'}
+**Your API Key**: ${API_KEY ? `${API_KEY.substring(0, 8)}...` : "Not set"}
 
 **Next Steps**:
 • Contact USPTO support: APIhelp@uspto.gov 
