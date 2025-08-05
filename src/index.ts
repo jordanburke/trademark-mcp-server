@@ -20,6 +20,17 @@ Rate limits: 60 requests per minute for general API calls, 4 requests per minute
 IMPORTANT: An API key is required to access the USPTO TSDR API (since October 2020).
 Set the USPTO_API_KEY environment variable with your API key from https://developer.uspto.gov/
 `,
+  health: {
+    enabled: true,
+    message: JSON.stringify({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      version: "1.0.0",
+      service: "trademark-mcp-server",
+    }),
+    path: "/health",
+    status: 200,
+  },
 })
 
 // Base TSDR API URL
