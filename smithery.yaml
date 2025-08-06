@@ -1,0 +1,19 @@
+# Smithery configuration file: https://smithery.ai/docs/build/project-config
+
+startCommand:
+  type: stdio
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'node', args: ['dist/bin.js'], env: { USPTO_API_KEY: config.usptoApiKey } })
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - usptoApiKey
+    properties:
+      usptoApiKey:
+        type: string
+        description: USPTO API key for TSDR API
+  exampleConfig:
+    usptoApiKey: your_uspto_api_key_here

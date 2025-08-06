@@ -1,5 +1,7 @@
 # Trademark MCP Server
 
+[![smithery badge](https://smithery.ai/badge/@jordanburke/trademark-mcp-server)](https://smithery.ai/server/@jordanburke/trademark-mcp-server)
+
 A Model Context Protocol (MCP) server that provides tools for searching and retrieving USPTO trademark information using the TSDR API.
 
 ## Features
@@ -14,6 +16,15 @@ This MCP server provides the following tools:
 
 ## Installation
 
+### Installing via Smithery
+
+To install trademark-mcp-server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@jordanburke/trademark-mcp-server):
+
+```bash
+npx -y @smithery/cli install @jordanburke/trademark-mcp-server --client claude
+```
+
+### Manual Installation
 ```bash
 pnpm install
 pnpm build
